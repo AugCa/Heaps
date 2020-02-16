@@ -29,60 +29,60 @@ public class DHeap<AnyType extends Comparable<? super AnyType>>
         this( DEFAULT_CAPACITY );
     }
 
-
-    public DHeap( int d )
+    //d är antal barn
+    public DHeap(int d)
     {
         if(d<=1)
             throw new IllegalArgumentException();
         this.d = d;
         currentSize = 0;
         array = (AnyType[]) new Comparable[DEFAULT_CAPACITY +1];
+    }
 
-
+    public boolean isMax(){
+        return currentSize == array.length -1;
     }
 
 
-    public void insert( AnyType x )
+    public void insert(AnyType x)
     {
-        if(currentSize == array.length -1)
+        if(isMax())
             enlargeArray(array.length * 2 +1);
-        int hole = ++currentSize;
+        currentSize++;
+        int hole = currentSize;
         for(array[0] = x; hole != 1 && x.compareTo(array[parentIndex(hole)]) < 0; hole = parentIndex(hole)){
-            if(hole != 1)
-                array[hole] = array[parentIndex(hole)];
+            array[hole] = array[parentIndex(hole)];
         }
         array[hole] = x;
 
     }
 
-    private void enlargeArray( int newSize )
+    private void enlargeArray(int newSize)
     {
-        AnyType [] old = array;
+        AnyType [] oldArray = array;
         array = (AnyType []) new Comparable[ newSize ];
-        for( int i = 0; i < old.length; i++ )
-            array[ i ] = old[ i ];
+        System.arraycopy(oldArray, 0, array, 0, oldArray.length);
     }
 
 
 
-    public AnyType findMin( )
+    public AnyType findMin()
     {
-        if( isEmpty( ) )
-            throw new UnderflowException( );
-        return array[ 1 ];
+        if(isEmpty())
+            throw new UnderflowException();
+        return array[1];
     }
 
 
 
     public AnyType deleteMin()
     {
-        if( isEmpty( ) )
-            throw new UnderflowException( );
-
-        AnyType minItem = findMin();
-        array[1] = array[currentSize-- ];
+        if(isEmpty())
+            throw new UnderflowException();
+        AnyType minNode = findMin();
+        array[1] = array[currentSize--];
         percolateDown( 1);
-        return minItem;
+        return minNode;
     }
 
     
@@ -123,36 +123,16 @@ public class DHeap<AnyType extends Comparable<? super AnyType>>
             else{
                 break;
             }
-
         }
         array[hole] = temp;
 
     }
 
-    public int minChildIndex(int parentIndex){
-        int firstChildIndex = firstChildIndex(parentIndex);
-        if(firstChildIndex > currentSize)
-            return Integer.MAX_VALUE;
-        AnyType minChild = array[firstChildIndex];
-        int minChildIndex = firstChildIndex;
-        for(int i =1;i<d;i++){
-            if(firstChildIndex+i <= currentSize){
-                AnyType cmp = array[firstChildIndex+i];
-                if(cmp != null  && cmp.compareTo(minChild) < 0){
-                    minChildIndex = firstChildIndex+i;
-                    minChild = cmp;
-                }
-            }
-        }
-        return minChildIndex;
-    }
 
     public int firstChildIndex(int parentIndex) throws IllegalArgumentException{
-        if(parentIndex < 1){
+        if(parentIndex < 1)
             throw new java.lang.IllegalArgumentException("parent too small");
-        }
-        int childIndex = 1;
-        return d*(parentIndex-1)+childIndex+1;
+        return d*(parentIndex-1)+2;
     }
 
     // Test program
@@ -184,10 +164,7 @@ public class DHeap<AnyType extends Comparable<? super AnyType>>
         if(index < 2){
             throw new java.lang.IllegalArgumentException();
         }
-        if(index == 2)
-            return 1;
-        return ((index-2)/d +1);
-
+        return (index == 2) ? 1 : ((index-2)/d +1);
     }
 
     public AnyType get(int index){
