@@ -26,7 +26,12 @@ public class DHeap<AnyType extends Comparable<? super AnyType>>
 
     public DHeap( )
     {
-        this( DEFAULT_CAPACITY );
+        new DHeap(2, DEFAULT_CAPACITY);
+    }
+    public DHeap(int d, int capacity){
+        this.d = d;
+        currentSize = 0;
+        array = (AnyType[]) new Comparable[capacity +1];
     }
 
     //d är antal barn
@@ -129,11 +134,32 @@ public class DHeap<AnyType extends Comparable<? super AnyType>>
     }
 
 
-    public int firstChildIndex(int parentIndex) throws IllegalArgumentException{
+    public int firstChildIndex(int parentIndex){
         if(parentIndex < 1)
             throw new java.lang.IllegalArgumentException("parent too small");
-        return d*(parentIndex-1)+2;
+        if(d<2){
+            return (parentIndex == 1) ? 2 : (2*parentIndex);
+
+        }
+        return  d*(parentIndex-1)+2;
     }
+
+
+
+    public int parentIndex(int x){
+        if(x < 2){
+            throw new java.lang.IllegalArgumentException();
+        }if(d<3){
+           int index = (x-1)/2;
+           if(index > 1)
+               return (index % 2 == 0) ? index : index+1;
+           return 1;
+        }
+        return (x == 2) ? 1 : ((x-2)/d +1);
+    }
+
+
+
 
     // Test program
     public static void main( String [ ] args )
@@ -160,12 +186,7 @@ public class DHeap<AnyType extends Comparable<? super AnyType>>
 
 
 
-    public int parentIndex(int index) {
-        if(index < 2){
-            throw new java.lang.IllegalArgumentException();
-        }
-        return (index == 2) ? 1 : ((index-2)/d +1);
-    }
+
 
     public AnyType get(int index){
         return array[index];
