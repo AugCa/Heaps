@@ -26,9 +26,11 @@ public class DHeapTester {
             int tal = rnd.nextInt(1000);
             heap.insert(tal);
             oracle.add(tal);
-
+            heap.printHeap();
             while (!heap.isEmpty() && rnd.nextBoolean()) {
+                heap.printHeap();
                 assertEquals(oracle.poll(), heap.deleteMin());
+                heap.printHeap();
             }
 
             assertEquals(oracle.isEmpty(), heap.isEmpty());
@@ -67,6 +69,7 @@ public class DHeapTester {
      */
     @Test
     public void testParentIndex() {
+        System.out.print(heap.size());
         assertEquals(5, heap.parentIndex(18));
         assertEquals(5, heap.parentIndex(21));
         assertEquals(6, heap.parentIndex(22));

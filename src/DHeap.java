@@ -21,55 +21,65 @@
  */
 public class DHeap<AnyType extends Comparable<? super AnyType>>
 {
+    private int d;
+    private int size;
+    private int capacity;
+    private int currentSize;      // Number of elements in heap
+    private AnyType [ ] array; // The heap array
     /**
      * Construct the binary heap.
      */
-    public BinaryHeap( )
+    public DHeap( )
     {
         this( DEFAULT_CAPACITY );
     }
 
     /**
      * Construct the binary heap.
-     * @param capacity the capacity of the binary heap.
+     * @param d the capacity of the binary heap.
      */
-    public BinaryHeap( int capacity )
+    public DHeap( int d )
     {
+        if(d<=1)
+            throw new IllegalArgumentException();
+        this.d = d;
         currentSize = 0;
-        array = (AnyType[]) new Comparable[ capacity + 1 ];
+        array = (AnyType[]) new Comparable[DEFAULT_CAPACITY +1];
+
+
     }
 
-    /**
-     * Construct the binary heap given an array of items.
-     */
-    public BinaryHeap( AnyType [ ] items )
-    {
-        currentSize = items.length;
-        array = (AnyType[]) new Comparable[ ( currentSize + 2 ) * 11 / 10 ];
+    private void bubbleUp(int childIndex){
+        AnyType temporary = array[childIndex];
+        while(childIndex > 0 &&  temporary.compareTo(array[parentIndex(childIndex)]) < 0 ){
+            array[childIndex] = array[parentIndex(childIndex)];
+            childIndex = parentIndex(childIndex);
+        }
+        array[childIndex] = temporary;
 
-        int i = 1;
-        for( AnyType item : items )
-            array[ i++ ] = item;
-        buildHeap( );
+
     }
 
-    /**
-     * Insert into the priority queue, maintaining heap order.
-     * Duplicates are allowed.
-     * @param x the item to insert.
-     */
+
+
+
+
     public void insert( AnyType x )
     {
-        if( currentSize == array.length - 1 )
-            enlargeArray( array.length * 2 + 1 );
-
-        // Percolate up
+        if(currentSize == array.length -1)
+            enlargeArray(array.length * 2 +1);
         int hole = ++currentSize;
-        for( array[ 0 ] = x; x.compareTo( array[ hole / 2 ] ) < 0; hole /= 2 )
-            array[ hole ] = array[ hole / 2 ];
-        array[ hole ] = x;
-    }
+        for(array[0] = x; hole != 1 && x.compareTo(array[parentIndex(hole)]) < 0; hole = parentIndex(hole)){
+            if(hole != 1)
+                array[hole] = array[parentIndex(hole)];
 
+
+        }
+        array[hole] = x;
+
+
+
+    }
 
     private void enlargeArray( int newSize )
     {
@@ -79,10 +89,8 @@ public class DHeap<AnyType extends Comparable<? super AnyType>>
             array[ i ] = old[ i ];
     }
 
-    /**
-     * Find the smallest item in the priority queue.
-     * @return the smallest item, or throw an UnderflowException if empty.
-     */
+
+
     public AnyType findMin( )
     {
         if( isEmpty( ) )
@@ -90,19 +98,19 @@ public class DHeap<AnyType extends Comparable<? super AnyType>>
         return array[ 1 ];
     }
 
+
     /**
      * Remove the smallest item from the priority queue.
      * @return the smallest item, or throw an UnderflowException if empty.
      */
-    public AnyType deleteMin( )
+    public AnyType deleteMin()
     {
         if( isEmpty( ) )
             throw new UnderflowException( );
 
-        AnyType minItem = findMin( );
-        array[ 1 ] = array[ currentSize-- ];
-        percolateDown( 1 );
-
+        AnyType minItem = findMin();
+        array[1] = array[currentSize-- ];
+        percolateDown( 1);
         return minItem;
     }
 
@@ -116,10 +124,7 @@ public class DHeap<AnyType extends Comparable<? super AnyType>>
             percolateDown( i );
     }
 
-    /**
-     * Test if the priority queue is logically empty.
-     * @return true if empty, false otherwise.
-     */
+
     public boolean isEmpty( )
     {
         return currentSize == 0;
@@ -135,8 +140,7 @@ public class DHeap<AnyType extends Comparable<? super AnyType>>
 
     private static final int DEFAULT_CAPACITY = 10;
 
-    private int currentSize;      // Number of elements in heap
-    private AnyType [ ] array; // The heap array
+
 
     /**
      * Internal method to percolate down in the heap.
@@ -145,27 +149,63 @@ public class DHeap<AnyType extends Comparable<? super AnyType>>
     private void percolateDown( int hole )
     {
         int child;
-        AnyType tmp = array[ hole ];
-
-        for( ; hole * 2 <= currentSize; hole = child )
-        {
-            child = hole * 2;
-            if( child != currentSize &&
-                    array[ child + 1 ].compareTo( array[ child ] ) < 0 )
-                child++;
-            if( array[ child ].compareTo( tmp ) < 0 )
-                array[ hole ] = array[ child ];
-            else
-                break;
+        AnyType tmp = array[hole];
+        int minChild;
+        for(; firstChildIndex(hole) <= currentSize; hole = minChild){
+            child = firstChildIndex(hole);
+            minChild = child;
+            for(int i = 0; i<d && child + i <= currentSize; i++ ){
+                if(child +1 <= currentSize && minChild <= currentSize && array[child + i].compareTo(array[minChild]) < 0){
+                    minChild = child+i;
+            }
         }
-        array[ hole ] = tmp;
+            if(array[minChild].compareTo(tmp) < 0){
+                array[hole] = array[minChild];
+            }
+            else{
+                break;
+            }
+
+        }
+
+        array[hole] = tmp;
+
+
+    }
+
+    public int minChildIndex(int parent){
+        int firstChildIndex = firstChildIndex(parent);
+        if(firstChildIndex > currentSize)
+            return Integer.MAX_VALUE;
+        AnyType minChild = array[firstChildIndex];
+        int minChildIndex = firstChildIndex;
+        for(int i =1;i<d;i++){
+            if(firstChildIndex+i <= currentSize){
+                AnyType compareWith = array[firstChildIndex+i];
+                if(compareWith !=null  && minChild.compareTo(compareWith) > 0){
+                    minChildIndex = firstChildIndex+i;
+                    minChild = compareWith;
+                }
+            }
+        }
+        return minChildIndex;
+    }
+
+
+
+    public int firstChildIndex(int parent) throws IllegalArgumentException{
+        if(parent < 1){
+            throw new java.lang.IllegalArgumentException("too small parent");
+        }
+        int child = 1;
+        return d*(parent-1)+child+1;
     }
 
     // Test program
     public static void main( String [ ] args )
     {
         int numItems = 10000;
-        BinaryHeap<Integer> h = new BinaryHeap<>( );
+        DHeap<Integer> h = new DHeap<>( );
         int i = 37;
 
         for( i = 37; i != 0; i = ( i + 37 ) % numItems )
@@ -174,4 +214,60 @@ public class DHeap<AnyType extends Comparable<? super AnyType>>
             if( h.deleteMin( ) != i )
                 System.out.println( "Oops! " + i );
     }
+
+
+
+    public void printHeap() {
+        System.out.print("\nHeap = ");
+        for (int i = 0; i < currentSize; i++)
+            System.out.print(array[i] + " ");
+        System.out.println();
+    }
+
+
+
+    public int parentIndex(int i) {
+        if(i < 2){
+            throw new java.lang.IllegalArgumentException();
+        }
+        if(i == 2)
+            return 1;
+        return ((i-2)/d +1);
+
+    }
+
+    public int parentIndex(AnyType value){
+        for(int i = 0; i<array.length; i++){
+            if(array[i].compareTo(value) == 0){
+                return parentIndex(i);
+            }
+        }
+        throw new java.lang.IllegalArgumentException("NOT FOUND");
+    }
+
+    public AnyType parent(int child){
+        return array[parentIndex(child)];
+    }
+
+
+    private AnyType minChild(int parent){
+        return get(minChildIndex(parent));
+
+    }
+
+
+
+    public AnyType get(int index){
+        return array[index];
+    }
+
+
+
+    public int size() {
+
+        return currentSize;
+    }
+
+
 }
+
