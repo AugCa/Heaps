@@ -48,7 +48,6 @@ public class DHeap<AnyType extends Comparable<? super AnyType>>
         return currentSize == array.length -1;
     }
 
-
     public void insert(AnyType x)
     {
         if(isMax())
@@ -62,6 +61,12 @@ public class DHeap<AnyType extends Comparable<? super AnyType>>
 
     }
 
+    private void buildHeap( )
+    {
+        for( int i = currentSize / 2; i > 0; i-- )
+            percolateDown( i );
+    }
+
     private void enlargeArray(int newSize)
     {
         AnyType [] oldArray = array;
@@ -69,16 +74,12 @@ public class DHeap<AnyType extends Comparable<? super AnyType>>
         System.arraycopy(oldArray, 0, array, 0, oldArray.length);
     }
 
-
-
     public AnyType findMin()
     {
         if(isEmpty())
             throw new UnderflowException();
         return array[1];
     }
-
-
 
     public AnyType deleteMin()
     {
@@ -90,14 +91,11 @@ public class DHeap<AnyType extends Comparable<? super AnyType>>
         return minNode;
     }
 
-    
-
 
     public boolean isEmpty( )
     {
         return currentSize == 0;
     }
-
 
     public void makeEmpty( )
     {
@@ -105,8 +103,6 @@ public class DHeap<AnyType extends Comparable<? super AnyType>>
     }
 
     private static final int DEFAULT_CAPACITY = 10;
-
-
 
   
     private void percolateDown( int hole )
@@ -133,7 +129,6 @@ public class DHeap<AnyType extends Comparable<? super AnyType>>
 
     }
 
-
     public int firstChildIndex(int parentIndex){
         if(parentIndex < 1)
             throw new java.lang.IllegalArgumentException("parent too small");
@@ -143,8 +138,6 @@ public class DHeap<AnyType extends Comparable<? super AnyType>>
         }
         return  d*(parentIndex-1)+2;
     }
-
-
 
     public int parentIndex(int x){
         if(x < 2){
@@ -157,8 +150,6 @@ public class DHeap<AnyType extends Comparable<? super AnyType>>
         }
         return (x == 2) ? 1 : ((x-2)/d +1);
     }
-
-
 
 
     // Test program
@@ -175,8 +166,6 @@ public class DHeap<AnyType extends Comparable<? super AnyType>>
                 System.out.println( "Oops! " + i );
     }
 
-
-
     public void printHeap() {
         System.out.print("\nHeap = ");
         for (int i = 0; i < currentSize; i++)
@@ -184,14 +173,9 @@ public class DHeap<AnyType extends Comparable<? super AnyType>>
         System.out.println();
     }
 
-
-
-
-
     public AnyType get(int index){
         return array[index];
     }
-
 
     public int size() {
         return currentSize;
